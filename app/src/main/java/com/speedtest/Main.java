@@ -69,17 +69,15 @@ public class Main extends Activity implements SensorEventListener {
         TextView tvZ= (TextView)findViewById(R.id.z_axis);
         TextView TVhighMedLow= (TextView)findViewById(R.id.highMedLow);
 
-        float x= event.values[0];
-        float y= event.values[1];
-        float z= event.values[2];
+        float[] accelValues = event.values;
 
-        double temp = sumAcceleration(x,y,z);
+        double temp = sumAcceleration(accelValues);
 
         tvX.setText(String.valueOf(temp));
 //        tvY.setText(String.valueOf(y));
 //        tvZ.setText(String.valueOf(z));
 
-        addToList(temp);
+        addAndShift(temp);
         double averageAcceleration=accelerationListAverage();
 
         tvZ.setText(String.valueOf(averageAcceleration));
@@ -89,14 +87,13 @@ public class Main extends Activity implements SensorEventListener {
 
     }
 
-    public double sumAcceleration(float i,float j,float k)
+    public double sumAcceleration(float[] accelerationValues)
     {
-        float temp= i*i+j*j+k*k;
-
-
-        double linearAcceleration= Math.sqrt(temp)-9.8;
-        return linearAcceleration;
-
+        double sum = 0;
+        for(int i = 0; i<accelerationValues.length; i++){
+            sum += Math.pow((double)accelerationValues[i], 2);
+        }
+        return (Math.sqrt(sum)-9.8);
     }
 
     public double accelerationListAverage()
@@ -107,20 +104,15 @@ public class Main extends Activity implements SensorEventListener {
             sum+=accelerationList[i];
         }
 
-        return (sum/5);
+        return (sum/(double)5.0);
     }
 
-    public void addToList( double a)
+    public void addAndShift( double a)
     {
-        double b= accelerationList[0];
-        double c = accelerationList[1];
-        double d = accelerationList[2];
-        double e = accelerationList[3];
-        accelerationList[0]=a;
-        accelerationList[1]=b;
-        accelerationList[2]=c;
-        accelerationList[3]=d;
-        accelerationList[4]=e;
+        for(int i = accelerationList.length; i>0; i--){
+            accelerationList[i] = accelerationList[i-1];
+        }
+       accelerationList[0] = a;
     }
 
     public String highMedLow(double accelAverage)
